@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+  datasource:
+    url: jdbc:postgresql://localhost/moped?currentSchema=public
+    username: postgres
+    password: qwerty
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB

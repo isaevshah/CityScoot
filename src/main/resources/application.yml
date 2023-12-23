@@ -1,0 +1,25 @@
+server:
+  port: ${SERVER_PORT:8080}
+management:
+  health:
+    binders:
+      enabled: true
+  endpoint:
+    include: health,info,metrics,prometheus
+spring:
+  profiles:
+    active: ${ACTIVE_PROFILE:dev}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    open-in-view: false
+  datasource:
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 2
+      maximum-pool-size: 20
+      idle-timeout: 10000
+      max-lifetime: 30000
+      pool-name: moped_pool
+      auto-commit: true
