@@ -2,6 +2,7 @@ package kz.project.moped.domain.repository;
 
 import kz.project.moped.domain.enums.ProductType;
 import kz.project.moped.domain.model.Product;
+import kz.project.moped.domain.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

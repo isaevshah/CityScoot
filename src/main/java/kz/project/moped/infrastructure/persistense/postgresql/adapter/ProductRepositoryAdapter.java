@@ -2,6 +2,7 @@ package kz.project.moped.infrastructure.persistense.postgresql.adapter;
 
 import kz.project.moped.domain.enums.ProductType;
 import kz.project.moped.domain.model.Product;
+import kz.project.moped.domain.model.User;
 import kz.project.moped.domain.repository.ProductRepository;
 import kz.project.moped.infrastructure.persistense.postgresql.mapper.ProductMapper;
 import kz.project.moped.infrastructure.persistense.postgresql.entity.ProductEntity;
