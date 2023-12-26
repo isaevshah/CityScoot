@@ -5,10 +5,11 @@ import kz.project.moped.domain.model.Role;
 import kz.project.moped.infrastructure.persistense.postgresql.entity.base.BaseAuditEntity;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -30,6 +31,9 @@ public class UserEntity extends BaseAuditEntity {
 
     @Column(name = "lastName", columnDefinition = "TEXT")
     private String lastName;
+
+    @Column(name = "email")
+    private String email;
 
     @Column(name = "birthdate")
     private Date birthdate;
