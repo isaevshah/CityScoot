@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -17,4 +18,5 @@ public class User {
     private String lastName;
     private String email;
     private Date birthdate;
+    private List<Role> roles;
 }

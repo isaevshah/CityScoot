@@ -1,6 +1,5 @@
 package kz.project.moped.infrastructure.persistense.postgresql.entity;
 import jakarta.persistence.*;
-import kz.project.moped.domain.enums.RoleType;
 import kz.project.moped.infrastructure.persistense.postgresql.entity.base.BaseAuditEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +14,8 @@ public class RoleEntity extends BaseAuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private RoleType roleType;
+    @Column(name = "code", columnDefinition = "TEXT")
+    private String code;
+    @Column(name = "name", columnDefinition = "TEXT")
+    private String name;
 }

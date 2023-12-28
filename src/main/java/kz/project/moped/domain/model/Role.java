@@ -1,8 +1,14 @@
 package kz.project.moped.domain.model;
 
-import kz.project.moped.domain.enums.RoleType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
 public class Role {
     private Long id;
-    private RoleType roleType;
+    private String code;
+    private String name;
 }

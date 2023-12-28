@@ -23,3 +23,9 @@ spring:
       max-lifetime: 30000
       pool-name: moped_pool
       auto-commit: true
+secret: 1DE4B3C66565B5AB1DFDD9B4CCEED
+validityInMinutes: 15
+refresh:
+  token:
+    duration:
+      minutes: 60
