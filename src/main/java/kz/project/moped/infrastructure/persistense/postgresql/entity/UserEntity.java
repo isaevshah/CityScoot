@@ -31,9 +31,6 @@ public class UserEntity extends BaseAuditEntity {
     @Column(name = "lastName", columnDefinition = "TEXT")
     private String lastName;
 
-    @Column(name = "email")
-    private String email;
-
     @Column(name = "birthdate")
     private Date birthdate;
 

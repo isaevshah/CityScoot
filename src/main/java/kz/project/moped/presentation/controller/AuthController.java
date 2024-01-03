@@ -4,19 +4,29 @@ import kz.project.moped.auth.security.JwtUserDetailsService;
 import kz.project.moped.auth.security.jwt.JwtTokenProvider;
 import kz.project.moped.auth.security.jwt.JwtUser;
 import kz.project.moped.domain.model.RefreshToken;
+import kz.project.moped.domain.model.User;
+import kz.project.moped.infrastructure.persistense.postgresql.entity.UserEntity;
 import kz.project.moped.infrastructure.persistense.postgresql.exception.TokenRefreshException;
+import kz.project.moped.presentation.dto.UserDTO;
 import kz.project.moped.presentation.dto.request.AuthenticationRequestDto;
+import kz.project.moped.presentation.dto.request.RegistrationRequestDto;
 import kz.project.moped.presentation.dto.request.TokenRefreshRequest;
 import kz.project.moped.presentation.dto.response.AuthenticationResponseDto;
+import kz.project.moped.presentation.mapper.UserDTOMapper;
 import kz.project.moped.usecase.token.FindRefreshTokenByTokenUseCase;
 import kz.project.moped.usecase.token.VerifyRefreshTokenUseCase;
+import kz.project.moped.usecase.user.FindUserByUsernameUseCase;
+import kz.project.moped.usecase.user.RegistrationUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,8 +36,48 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final JwtUserDetailsService jwtUserDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final FindUserByUsernameUseCase findUserByUsernameUseCase;
+    private final RegistrationUserUseCase registrationUserUseCase;
     private final VerifyRefreshTokenUseCase verifyRefreshTokenUseCase;
     private final FindRefreshTokenByTokenUseCase findRefreshTokenByTokenUseCase;
+    @PostMapping("/register")
+    @SneakyThrows
+    public ResponseEntity<AuthenticationResponseDto> register(@RequestBody UserDTO userDTO){
+        try {
+            String username = userDTO.getUsername();
+
+            boolean isExist = findUserByUsernameUseCase.findUserByUsername(username) == null;
+
+            if(!isExist){
+                AuthenticationResponseDto response = new AuthenticationResponseDto();
+                response.setError("User with username " + username + " already exists");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            User newUser = new User();
+            newUser.setUsername(userDTO.getUsername());
+            newUser.setLastName(userDTO.getLastname());
+            newUser.setBirthdate(userDTO.getBirthdate());
+            newUser.setPassword(userDTO.getPassword());
+            Mono<User> savedUser = registrationUserUseCase.registerUser(newUser);
+
+            final JwtUser userDetails = jwtUserDetailsService.loadUserByUsername(username.toUpperCase());
+            final String token = jwtTokenProvider.generateToken(userDetails);
+            AuthenticationResponseDto response = new AuthenticationResponseDto();
+            response.setToken(token);
+            response.setUser_info(userDetails);
+            response.setUsername(username);
+            RefreshToken refreshToken = jwtTokenProvider.createRefreshToken(userDetails);
+            response.setRefreshToken(refreshToken.getToken());
+            response.setError("User registered successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            AuthenticationResponseDto response = new AuthenticationResponseDto();
+            response.setError("Failed to register user");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/login")
     @SneakyThrows
     public ResponseEntity<AuthenticationResponseDto> login(@RequestBody AuthenticationRequestDto requestDto) {
