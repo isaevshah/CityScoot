@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 public class JwtUser implements UserDetails {
     private final Long id;
-    private final String email;
+    private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
     private final List<String> roleNames;
 
@@ -28,7 +28,7 @@ public class JwtUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

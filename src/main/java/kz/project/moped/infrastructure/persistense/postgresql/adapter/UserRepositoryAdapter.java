@@ -17,7 +17,7 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public User findByUsername(String username) {
         UserEntity findUser = jpaUserRepository.findByUsername(username);
-        return userMapper.toDomain(findUser);
+        return findUser != null ? userMapper.toDomain(findUser) : null;
     }
 
     @Override

@@ -3,6 +3,7 @@ package kz.project.moped.auth.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import kz.project.moped.domain.model.RefreshToken;
 import kz.project.moped.usecase.token.CreateRefreshTokenUseCase;
 import kz.project.moped.usecase.user.FindUserByUsernameUseCase;
@@ -31,6 +32,7 @@ public class JwtTokenProvider {
 
     @Value("${refresh.token.duration.minutes}")
     private Long refreshTokenDurationMinutes;
+    private final byte[] secureKey = Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded();
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -54,6 +56,8 @@ public class JwtTokenProvider {
 
     public String generateToken(JwtUser userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("id", userDetails.getId());
+        claims.put("username", userDetails.getUsername());
         claims.put("authorities", userDetails.getAuthorities());
         claims.put("rolename", userDetails.getRoleNames());
         return createToken(claims, userDetails.getUsername());
@@ -81,10 +85,10 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuer("msa")
+                .setIssuer("moped")
                 .setIssuedAt(new Date())
                 .setExpiration(tokenValidity)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, secureKey)
                 .compact();
     }
 }

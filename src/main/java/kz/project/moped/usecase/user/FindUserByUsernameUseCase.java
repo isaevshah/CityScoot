@@ -11,6 +11,6 @@ import reactor.core.publisher.Mono;
 public class FindUserByUsernameUseCase {
     private final UserRepository userRepository;
     public Mono<User> findUserByUsername(String username){
-        return Mono.just(userRepository.findByUsername(username));
+        return Mono.justOrEmpty(userRepository.findByUsername(username));
     }
 }

@@ -8,6 +8,6 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
-    User toDomain(UserEntity userEntity);
+    User toDomain(UserEntity user);
     UserEntity toEntity(User user);
 }

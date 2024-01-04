@@ -5,14 +5,9 @@ import kz.project.moped.auth.security.jwt.JwtTokenProvider;
 import kz.project.moped.auth.security.jwt.JwtUser;
 import kz.project.moped.domain.model.RefreshToken;
 import kz.project.moped.domain.model.User;
-import kz.project.moped.infrastructure.persistense.postgresql.entity.UserEntity;
-import kz.project.moped.infrastructure.persistense.postgresql.exception.TokenRefreshException;
 import kz.project.moped.presentation.dto.UserDTO;
 import kz.project.moped.presentation.dto.request.AuthenticationRequestDto;
-import kz.project.moped.presentation.dto.request.RegistrationRequestDto;
-import kz.project.moped.presentation.dto.request.TokenRefreshRequest;
 import kz.project.moped.presentation.dto.response.AuthenticationResponseDto;
-import kz.project.moped.presentation.mapper.UserDTOMapper;
 import kz.project.moped.usecase.token.FindRefreshTokenByTokenUseCase;
 import kz.project.moped.usecase.token.VerifyRefreshTokenUseCase;
 import kz.project.moped.usecase.user.FindUserByUsernameUseCase;
@@ -22,8 +17,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -46,7 +39,7 @@ public class AuthController {
         try {
             String username = userDTO.getUsername();
 
-            boolean isExist = findUserByUsernameUseCase.findUserByUsername(username) == null;
+            boolean isExist = findUserByUsernameUseCase.findUserByUsername(username).block() == null;
 
             if(!isExist){
                 AuthenticationResponseDto response = new AuthenticationResponseDto();
@@ -55,12 +48,13 @@ public class AuthController {
             }
             User newUser = new User();
             newUser.setUsername(userDTO.getUsername());
+            newUser.setFirstName(userDTO.getFirstname());
             newUser.setLastName(userDTO.getLastname());
             newUser.setBirthdate(userDTO.getBirthdate());
             newUser.setPassword(userDTO.getPassword());
-            Mono<User> savedUser = registrationUserUseCase.registerUser(newUser);
+            User savedUser = registrationUserUseCase.registerUser(newUser).block();
 
-            final JwtUser userDetails = jwtUserDetailsService.loadUserByUsername(username.toUpperCase());
+            final JwtUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
             final String token = jwtTokenProvider.generateToken(userDetails);
             AuthenticationResponseDto response = new AuthenticationResponseDto();
             response.setToken(token);
@@ -88,7 +82,7 @@ public class AuthController {
                 response.setError("username is empty");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
-            final JwtUser userDetails = jwtUserDetailsService.loadUserByUsername(username.toUpperCase());
+            final JwtUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
             final String token = jwtTokenProvider.generateToken(userDetails);
             AuthenticationResponseDto response = new AuthenticationResponseDto();
             response.setToken(token);
