@@ -9,6 +9,7 @@ import kz.project.moped.usecase.product.DeleteProductByIdUseCase;
 import kz.project.moped.usecase.product.FetchProductByTypeUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
@@ -32,6 +33,7 @@ public class ProductController {
         return savedProductDTO;
     }
     @GetMapping("/fetch_product_by_type")
+    @PreAuthorize("hasRole('ROLE_USER')")
     List<ProductDTO> fetchProductByType(@RequestParam("productType") ProductType productType){
         List<Product> productList = fetchProductByTypeUseCase.fetchProductByType(productType);
         return productList.stream()

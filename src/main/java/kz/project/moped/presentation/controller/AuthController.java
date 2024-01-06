@@ -8,6 +8,7 @@ import kz.project.moped.domain.model.User;
 import kz.project.moped.presentation.dto.UserDTO;
 import kz.project.moped.presentation.dto.request.AuthenticationRequestDto;
 import kz.project.moped.presentation.dto.response.AuthenticationResponseDto;
+import kz.project.moped.usecase.role.FetchRoleByNameUseCase;
 import kz.project.moped.usecase.token.FindRefreshTokenByTokenUseCase;
 import kz.project.moped.usecase.token.VerifyRefreshTokenUseCase;
 import kz.project.moped.usecase.user.FindUserByUsernameUseCase;
@@ -21,6 +22,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+
 @RequiredArgsConstructor
 @RestController
 @Slf4j
@@ -31,6 +34,7 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final FindUserByUsernameUseCase findUserByUsernameUseCase;
     private final RegistrationUserUseCase registrationUserUseCase;
+    private final FetchRoleByNameUseCase fetchRoleByNameUseCase;
     private final VerifyRefreshTokenUseCase verifyRefreshTokenUseCase;
     private final FindRefreshTokenByTokenUseCase findRefreshTokenByTokenUseCase;
     @PostMapping("/register")
@@ -52,7 +56,8 @@ public class AuthController {
             newUser.setLastName(userDTO.getLastname());
             newUser.setBirthdate(userDTO.getBirthdate());
             newUser.setPassword(userDTO.getPassword());
-            User savedUser = registrationUserUseCase.registerUser(newUser).block();
+            newUser.setRoles(Arrays.asList(fetchRoleByNameUseCase.findRoleByName("ROLE_USER")));
+            registrationUserUseCase.registerUser(newUser).block();
 
             final JwtUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
             final String token = jwtTokenProvider.generateToken(userDetails);
@@ -88,8 +93,8 @@ public class AuthController {
             response.setToken(token);
             response.setUser_info(userDetails);
             response.setUsername(username);
-            RefreshToken refreshToken = jwtTokenProvider.createRefreshToken(userDetails);
-            response.setRefreshToken(refreshToken.getToken());
+//            RefreshToken refreshToken = jwtTokenProvider.createRefreshToken(userDetails);
+//            response.setRefreshToken(refreshToken.getToken());
             log.info("AUTH: User " + username + " was auth");
 
             return new ResponseEntity<>(response, HttpStatus.OK);

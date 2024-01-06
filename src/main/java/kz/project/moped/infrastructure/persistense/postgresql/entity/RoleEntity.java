@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "roles")
 @Entity
-public class RoleEntity extends BaseAuditEntity {
+public class RoleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
